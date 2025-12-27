@@ -377,10 +377,9 @@ if __name__ == "__main__":
 ```
 
 ## Future Additions
-
-This section outlines potential improvements that could extend the notebook capabilities. These ideas focus on deeper analysis and broader compatibility.
-
-- Add multi-language support for resumes and job descriptions.  
-- Introduce a GUI or web interface for non-technical users.  
-- Expand keyword lists dynamically using job market data and embeddings.  
-- Export results as JSON or CSV for integration in other tools.
+ 
+- Introduce a GUI or web interface for non-technical users.
+- Connect your frontend with your nlp model
+- Try to add few more features (eg. resume creation)
+- Expand keyword lists dynamically using job market data and embeddings. 
+- Create a analytics section so that users can see the matchability of their jd with their resume
