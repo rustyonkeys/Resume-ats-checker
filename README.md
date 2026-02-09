@@ -384,3 +384,6 @@ This section outlines potential improvements that could extend the notebook capa
 - Introduce a GUI or web interface for non-technical users.  
 - Expand keyword lists dynamically using job market data and embeddings.  
 - Export results as JSON or CSV for integration in other tools.
+- Create an analytics section to show matchability between resumes and job descriptions.
+- Also create a dashboard for the old users 
+- gateway payment
