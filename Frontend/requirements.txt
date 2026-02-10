@@ -1,0 +1,12 @@
+# This is a React.js project using Node.js and npm
+# To install dependencies, use:
+# npm install
+
+# For development:
+# npm run dev
+
+# For production build:
+# npm run build
+
+# Note: Make sure you have Node.js (v18 or higher) and npm installed
+# You can download Node.js from: https://nodejs.org/
