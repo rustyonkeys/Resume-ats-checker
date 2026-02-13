@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
+
 
 const LoadingScreen = ({ fileName = "Resume.pdf" }) => {
   const [progress, setProgress] = useState(0);
@@ -9,6 +11,7 @@ const LoadingScreen = ({ fileName = "Resume.pdf" }) => {
     { id: '3', label: 'Comparing against job descriptions', status: 'pending' },
     { id: '4', label: 'Generating final ATS report', status: 'pending' },
   ]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const totalDuration = 5000;
@@ -50,6 +53,11 @@ const LoadingScreen = ({ fileName = "Resume.pdf" }) => {
       })
     );
   }, [currentStepIndex]);
+
+  useEffect(() => {
+    if (progress === 100) {
+      navigate("/result")
+    }}, [progress]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100/10 to-gray-50 flex items-center justify-center px-6">
