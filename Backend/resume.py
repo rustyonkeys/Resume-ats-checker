@@ -217,38 +217,103 @@ class ResumeATSScorer:
         self.format_score = max(0, score)
         return issues, self.format_score
     
+    # def match_job_description(self, job_description: Optional[str] = None) -> Tuple[float, List[str]]:
+    #     """
+    #     Match resume with job description
+    #     TODO: Implement keyword matching and TF-IDF similarity
+    #     """
+    #     if not job_description:
+    #         return 0.0, []
+        
+    #     # Basic keyword matching
+    #     jd_clean = re.sub(r"\s+", " ", job_description.lower().strip())
+        
+    #     # Extract common tech keywords
+    #     tech_keywords = re.findall(
+    #         r'\b(?:python|sql|power bi|azure|aws|machine learning|'
+    #         r'data analysis|excel|r|git|spark|hadoop|tableau)\b',
+    #         jd_clean
+    #     )
+        
+    #     # Count matches in resume
+    #     matches = []
+    #     for keyword in set(tech_keywords):
+    #         if keyword in self.cleaned_text:
+    #             matches.append(keyword)
+        
+    #     # Simple scoring
+    #     if tech_keywords:
+    #         self.keyword_score = (len(matches) / len(set(tech_keywords))) * 100
+    #     else:
+    #         self.keyword_score = 0
+        
+    #     return self.keyword_score, matches
+    
     def match_job_description(self, job_description: Optional[str] = None) -> Tuple[float, List[str]]:
-        """
-        Match resume with job description
-        TODO: Implement keyword matching and TF-IDF similarity
-        """
+    # """
+    # Advanced JD vs Resume matching
+    # Supports single and multi-word keyword matching
+    # """
         if not job_description:
+            self.keyword_score = 0
             return 0.0, []
-        
-        # Basic keyword matching
-        jd_clean = re.sub(r"\s+", " ", job_description.lower().strip())
-        
-        # Extract common tech keywords
-        tech_keywords = re.findall(
-            r'\b(?:python|sql|power bi|azure|aws|machine learning|'
-            r'data analysis|excel|r|git|spark|hadoop|tableau)\b',
-            jd_clean
-        )
-        
-        # Count matches in resume
-        matches = []
-        for keyword in set(tech_keywords):
-            if keyword in self.cleaned_text:
-                matches.append(keyword)
-        
-        # Simple scoring
-        if tech_keywords:
-            self.keyword_score = (len(matches) / len(set(tech_keywords))) * 100
+
+        # --- Clean JD ---
+        jd_clean = re.sub(r"[^\w\s]", " ", job_description.lower())
+        jd_clean = re.sub(r"\s+", " ", jd_clean).strip()
+
+        # --- Clean Resume ---
+        resume_clean = self.cleaned_text
+
+        # Basic stopwords
+        stopwords = {
+            "the", "and", "or", "a", "an", "to", "for", "with",
+            "in", "on", "of", "at", "by", "we", "you", "is",
+            "are", "be", "this", "that", "as", "will", "from",
+            "have", "has", "had", "our", "your", "their"
+        }
+
+        # Tokenize JD
+        jd_words = [
+            word for word in jd_clean.split()
+            if len(word) > 2 and word not in stopwords
+        ]
+
+        # --- Generate n-grams (1,2,3 word phrases) ---
+        def generate_ngrams(words, n):
+            return [" ".join(words[i:i+n]) for i in range(len(words)-n+1)]
+
+        jd_unigrams = jd_words
+        jd_bigrams = generate_ngrams(jd_words, 2)
+        jd_trigrams = generate_ngrams(jd_words, 3)
+
+        # Combine all keywords
+        jd_keywords = set(jd_unigrams + jd_bigrams + jd_trigrams)
+
+        matched = []
+        missing = []
+
+        for keyword in jd_keywords:
+            if keyword in resume_clean:
+                matched.append(keyword)
+            else:
+                missing.append(keyword)
+
+        # Remove duplicates caused by overlaps
+        matched = list(set(matched))
+        missing = list(set(missing))
+
+        # Score calculation
+        if len(jd_keywords) > 0:
+            self.keyword_score = (len(matched) / len(jd_keywords)) * 100
         else:
             self.keyword_score = 0
-        
-        return self.keyword_score, matches
-    
+
+        # Save missing for AI suggestions later
+        self.missing_keywords = missing
+
+        return round(self.keyword_score, 2), matched
+
     def calculate_final_score(self) -> float:
         """
         Calculate weighted final score
