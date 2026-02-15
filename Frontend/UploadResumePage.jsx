@@ -59,52 +59,93 @@ const UploadResumePage = () => {
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (!selectedFile) {
-      alert("Please upload your resume");
-      return;
-    }
-      // 🚀 instantly show loading screen
-    navigate("/loading", {
-      state: { fileName: selectedFile.name, jobDescription: jobDescription }});
-      
-    await new Promise(resolve => setTimeout(resolve, 5000));
-  
-    try {
-      const formData = new FormData();
-      formData.append("resume", selectedFile);
-      formData.append("job_description", jobDescription);
-  
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/analyse_resume",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-  
-      if (!response.ok) {
-        throw new Error("Failed to analyze resume");
-      }
-  
-      const data = await response.json();
-      
-    //   console.log("Analysis result:", data);
-  
-    //   alert("Resume analyzed successfully!");
-    //   // later: navigate("/results", { state: data });
-  
-    // } catch (error) {
-    //   console.error(error);
-    //   alert("Something went wrong. Check backend logs.");
-    // }
+  if (!selectedFile) {
+    alert("Please upload your resume");
+    return;
+  }
 
-    navigate("/results", { state: data });
-    } catch (error) {
-      if (error.message === "Failed to analyze resume") {
-        navigate("/error", { state: { error: error.message } });
-      }
-    }
-  };
+  // Navigate to loading immediately
+  navigate("/loading", {
+    state: { fileName: selectedFile.name }
+  });
+
+  try {
+    const formData = new FormData();
+    formData.append("resume", selectedFile);
+    formData.append("job_description", jobDescription);
+
+    // Start both API call and 5 sec timer together
+    const apiCall = fetch("http://127.0.0.1:8000/api/analyse_resume", {
+      method: "POST",
+      body: formData,
+    }).then(res => {
+      if (!res.ok) throw new Error("Failed to analyze resume");
+      return res.json();
+    });
+
+    const delay = new Promise(resolve => setTimeout(resolve, 5000));
+
+    // Wait for BOTH
+    const [data] = await Promise.all([apiCall, delay]);
+
+    // Now go to dashboard
+    navigate("/result", { state: data });
+
+  } catch (error) {
+    navigate("/error", { state: { error: error.message } });
+  }
+};
+
+
+
+
+  // const handleSubmit = async () => {
+  //   if (!selectedFile) {
+  //     alert("Please upload your resume");
+  //     return;
+  //   }
+  //     // 🚀 instantly show loading screen
+  //   navigate("/loading", {
+  //     state: { fileName: selectedFile.name, jobDescription: jobDescription }});
+      
+  //   await new Promise(resolve => setTimeout(resolve, 5000));
+  
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append("resume", selectedFile);
+  //     formData.append("job_description", jobDescription);
+  
+  //     const response = await fetch(
+  //       "http://127.0.0.1:8000/api/analyse_resume",
+  //       {
+  //         method: "POST",
+  //         body: formData,
+  //       }
+  //     );
+  
+  //     if (!response.ok) {
+  //       throw new Error("Failed to analyze resume");
+  //     }
+  
+  //     const data = await response.json();
+      
+  //   //   console.log("Analysis result:", data);
+  
+  //   //   alert("Resume analyzed successfully!");
+  //   //   // later: navigate("/results", { state: data });
+  
+  //   // } catch (error) {
+  //   //   console.error(error);
+  //   //   alert("Something went wrong. Check backend logs.");
+  //   // }
+
+  //   navigate("/results", { state: data });
+  //   } catch (error) {
+  //     if (error.message === "Failed to analyze resume") {
+  //       navigate("/error", { state: { error: error.message } });
+  //     }
+  //   }
+  // };
   // Remove selected file
   const handleRemoveFile = () => {
     setSelectedFile(null);
