@@ -380,6 +380,40 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Early Access Section */}
+      <section className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl bg-[#090a0f] px-8 py-12 shadow-2xl sm:px-10 lg:px-12 lg:py-14">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#151721] to-[#343246] opacity-90"></div>
+            <div className="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+              <div>
+                <p className="mb-5 text-xs font-bold uppercase tracking-[0.22em] text-gray-500">
+                  Join early
+                </p>
+                <h2 className="max-w-xl text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+                  Be first to test the resume intelligence workspace.
+                </h2>
+              </div>
+
+              <form className="flex w-full flex-col gap-3 rounded-full border border-white/10 bg-white/10 p-2 backdrop-blur sm:flex-row">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  aria-label="Email address"
+                  className="min-h-12 flex-1 rounded-full border-0 bg-transparent px-5 text-white outline-none placeholder:text-gray-300"
+                />
+                <button
+                  type="submit"
+                  className="min-h-12 rounded-full bg-white px-7 font-bold text-gray-950 transition-colors hover:bg-gray-100"
+                >
+                  Notify me
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

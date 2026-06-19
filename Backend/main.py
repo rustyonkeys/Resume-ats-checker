@@ -2,7 +2,10 @@ from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 import tempfile
 import os
-from resume import ResumeATSScorer
+try:
+    from services.resume_ats_scorer_service import ResumeATSScorer
+except ImportError:
+    from Backend.services.resume_ats_scorer_service import ResumeATSScorer
 
 app = FastAPI()
 
@@ -54,7 +57,3 @@ def analyse_resume(
         }
     finally:
         os.remove(temp_pdf_path)
-
-
-
-#change your job description logic matching in resume.py

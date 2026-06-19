@@ -4,3 +4,4 @@ python-multipart
 pdfplumber
 PyMuPdf
 python-dotenv
+# sklearn
