@@ -50,3 +50,6 @@ uploads/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+
+
+extra_files/
