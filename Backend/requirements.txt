@@ -1,9 +1,8 @@
 fastapi
 uvicorn
 python-multipart
+unstructured
 pdfplumber
 PyMuPdf
 python-docx
 python-dotenv
-
-# sklearn

@@ -10,6 +10,7 @@ from fastapi import (
     status)
 
 from services.file_validation.file_validation import file_validation
+from services.resume_parser.resumeparser import parse_resume
 
 
 #creating a router instance
@@ -75,6 +76,10 @@ async def upload_resume(
                     allowed_file_extensions=allowed_file_extensions,
                     max_mb = max_file_size_mb
                 )
+
+                resume_text = validation_result['full_resume_text']
+
+                parsed_resume = parse_resume(resume_text)
                 
                 # The resume parser will eventually be called here:
                     # resume_text = extract_resume_text(temp_file_path)
@@ -84,7 +89,8 @@ async def upload_resume(
                     "message": "Resume uploaded and validated successfully",
                     "filename": original_filename,
                     "job_desciption_received": True,
-                    "validation": validation_result
+                    "validation": validation_result,
+                    "text": parsed_resume
                 }
             
     except HTTPException:

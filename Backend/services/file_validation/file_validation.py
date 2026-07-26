@@ -3,12 +3,38 @@ from docx import Document
 import fitz
 
 
+def validate_text_quality(
+        text: str, 
+        min_words: int=40 , 
+        min_chars: int=100) -> bool:
+    """To check if the extracted text meets the minimum content thresholds. """
+    clean_text = text.strip()
+
+    #Splits by whitespace to find geniune words
+    words = clean_text.split()
+
+    if len(words)<(min_words):
+        raise ValueError(
+            f"Resume contains insufficient text ({len(words)} words found). "
+            f"Minimum required is {min_words} words."
+        )
+    
+    if len(clean_text)<min_chars:
+        raise ValueError(
+            f"Resume contains insufficient text ({len(clean_text)} characters found). "
+            f"Minimum required is {min_chars} characters."
+        )
+    return True
+
+
 # File extension and size validation
 
 def file_validation(
         file_path: str, 
         allowed_file_extensions: set[str], 
-        max_mb: int)-> dict:
+        max_mb: int,
+        min_words: int=40 , 
+        min_chars: int=100)-> dict:
 
     #Validate an uploaded resume file.
 
@@ -63,6 +89,17 @@ def file_validation(
                     raise ValueError(
                         f"PDF contains no extractable text"
                         f"It may be a scanned or image only PDF, which is not supported.")
+
+
+                full_pdf_text = ""
+                for page in document:
+                        full_pdf_text += page.get_text() + "\n"
+                
+                validate_text_quality(
+                    full_pdf_text,
+                    min_words = min_words,
+                    min_chars = min_chars,
+                )
                 
 # ValueError created by you
 # return the same error
@@ -102,7 +139,8 @@ def file_validation(
         "extension": extension,
         "size_bytes": file_size_bytes,
         "page_count": page_count,
-        "contains_extractable_text": contains_text
+        "contains_extractable_text": contains_text,
+        "full_resume_text": full_pdf_text
     }
 
 
