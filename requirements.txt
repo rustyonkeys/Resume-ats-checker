@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-python-multipart
-pdfplumber
-PyMuPdf
-python-docx
-python-dotenv
-
-# sklearn

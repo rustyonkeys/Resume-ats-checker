@@ -59,9 +59,13 @@
 #         os.remove(temp_pdf_path)
 
 
+from dotenv import load_dotenv
+load_dotenv(override=True)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.upload_resume_jd import router as upload_resume_router
+from routes.upload_resume_jd_route import router as upload_resume_router
+from routes.extracted_knowledge_route import router as extracted_knowledge_router
+
 
 
 app = FastAPI(
@@ -91,3 +95,10 @@ app.include_router(
     prefix = "/api/v1/resume", 
     tags= ["Resume Tracking"]
     )
+
+
+app.include_router(
+    extracted_knowledge_router,
+    prefix = "/api/v1/resume",  # so the full path will be /api/v1/resume/extractedresumeknowledge
+    tags = ["Resume Extracted Knowledge"]
+)
