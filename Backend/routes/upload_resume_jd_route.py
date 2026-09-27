@@ -9,10 +9,13 @@ from fastapi import (
     HTTPException,
     status)
 
-# from services.file_validation import file_validation
 from services.file_validation import file_validation
 from services.resumeparser import parse_resume
 from services.scoring.resume_format_scoring import score_resume_format
+from services.scoring.response_formatter import (
+    format_scoring_response,
+    format_validation_response,
+)
 # from LLM.extractknowledge import extract_resume_knowledge
 
 #creating a router instance
@@ -84,6 +87,8 @@ async def upload_resume(
         #calling resumeparser.py file
         parsed_resume = parse_resume(resume_text)
         resume_format_score = score_resume_format(parsed_resume=parsed_resume, validation_result=validation_result, file_path=temp_file_path, language="en")
+        public_validation = format_validation_response(validation_result)
+        public_format_score = format_scoring_response(resume_format_score)
 
         # extract_knowledge = extract_resume_knowledge(parsed_resume)
 
@@ -95,10 +100,9 @@ async def upload_resume(
         return{
             "message": "Resume uploaded and validated successfully",
             "filename": original_filename,
-            "job_desciption_received": True,
-            "validation": validation_result,
-            "parsed_resume": parsed_resume,
-            "resume_format_score": resume_format_score
+            "job_description_received": True,
+            "validation": public_validation,
+            "resume_format_score": public_format_score
             # "text": parsed_resume,
             # "extracted_knowledge": extract_knowledge
             }
