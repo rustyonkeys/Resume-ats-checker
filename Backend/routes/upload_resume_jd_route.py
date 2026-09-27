@@ -9,8 +9,10 @@ from fastapi import (
     HTTPException,
     status)
 
-from services.file_validation.file_validation import file_validation
+# from services.file_validation import file_validation
+from services.file_validation import file_validation
 from services.resumeparser import parse_resume
+from services.scoring.resume_format_scoring import score_resume_format
 # from LLM.extractknowledge import extract_resume_knowledge
 
 #creating a router instance
@@ -71,33 +73,35 @@ async def upload_resume(
                 temp_file.write(chunk)
 
                 #Connect uploadresume.py to file_validation.py
-            validation_result = file_validation(
-                    file_path=temp_file_path,
-                    allowed_file_extensions=allowed_file_extensions,
-                    max_mb = max_file_size_mb
-            )
+        validation_result = file_validation(
+                file_path=temp_file_path,
+                allowed_file_extensions=allowed_file_extensions,
+                max_mb = max_file_size_mb
+        )
 
-            resume_text = validation_result["full_resume_text"]
+        resume_text = validation_result["full_resume_text"]
 
-            #calling resumeparser.py file
-            parsed_resume = parse_resume(resume_text)
+        #calling resumeparser.py file
+        parsed_resume = parse_resume(resume_text)
+        resume_format_score = score_resume_format(parsed_resume=parsed_resume, validation_result=validation_result, file_path=temp_file_path, language="en")
 
-            # extract_knowledge = extract_resume_knowledge(parsed_resume)
+        # extract_knowledge = extract_resume_knowledge(parsed_resume)
 
 
                 # The resume parser will eventually be called here:
                     # resume_text = extract_resume_text(temp_file_path)
                     # parsed_resume = parse_resume(resume_text)
                     # jd_analysis = analyse_job_description(jd)
-            return{
-                "message": "Resume uploaded and validated successfully",
-                "filename": original_filename,
-                "job_desciption_received": True,
-                "validation": validation_result,
-                "parsed_resume": parsed_resume
-                # "text": parsed_resume,
-                # "extracted_knowledge": extract_knowledge
-                }
+        return{
+            "message": "Resume uploaded and validated successfully",
+            "filename": original_filename,
+            "job_desciption_received": True,
+            "validation": validation_result,
+            "parsed_resume": parsed_resume,
+            "resume_format_score": resume_format_score
+            # "text": parsed_resume,
+            # "extracted_knowledge": extract_knowledge
+            }
             
     except HTTPException:
         raise

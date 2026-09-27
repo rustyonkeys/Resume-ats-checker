@@ -1,6 +1,8 @@
 from pathlib import Path
 from docx import Document
 import fitz
+from .scoring.layout_analyzer import analyze_pdf_layout
+from .scoring.scoring_schema import ScoringPolicy
 
 
 
@@ -33,7 +35,8 @@ def file_validation(
         allowed_file_extensions: set[str],
         max_mb: int,
         min_words: int=40 , 
-        min_chars: int=100) ->dict:
+        min_chars: int=100,
+        scoring_policy: ScoringPolicy | None = None) ->dict:
 # File extension and size validation
 
     #Validate an uploaded resume file.
@@ -70,6 +73,7 @@ def file_validation(
         contains_text = None
 
         full_resume_text = ""
+        pdf_analysis = None
 
         # Deep pdf content validation
         if extension == '.pdf':
@@ -83,21 +87,19 @@ def file_validation(
                     
                     page_count = document.page_count
 
-                    pdf_text = []
-                    for page in document:
-                        page_text = page.get_text().strip()
+                    # Recover scan text and verify geometry before content validation.
+                    # The scorer reuses this analysis rather than running OCR again.
+                    pdf_analysis = analyze_pdf_layout(file_path, scoring_policy)
+                    if pdf_analysis["status"] != "ok":
+                        raise ValueError(pdf_analysis["reason"])
+                    full_resume_text = pdf_analysis["extracted_text"]
 
-                        if page_text:
-                            pdf_text.append(page_text)
-
-                    full_resume_text = "\n".join(pdf_text)
-
-                    contains_text = bool(full_resume_text)
+                    contains_text = bool(full_resume_text.strip())
 
                     if not contains_text:
-                        raise ValueError(
-                            f"PDF contains no extractable text"
-                            f"It may be a scanned or image only PDF, which is not supported.")
+                        reasons = sorted({page["ocr"]["reason"] for page in pdf_analysis["pages"]
+                                          if page["ocr"]["status"] != "not_needed"})
+                        raise ValueError("PDF contains no readable text after extraction. " + " ".join(reasons))
                     
                     
                     validate_text_quality(
@@ -162,7 +164,9 @@ def file_validation(
             "size_bytes": file_size_bytes,
             "page_count": page_count,
             "contains_extractable_text": contains_text,
-            "full_resume_text": full_resume_text
+            "full_resume_text": full_resume_text,
+            "pdf_analysis": pdf_analysis,
+            "text_extraction_method": "ocr_assisted" if pdf_analysis and pdf_analysis.get("used_ocr") else "native",
         }
 
 

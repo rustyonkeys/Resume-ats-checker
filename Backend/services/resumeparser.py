@@ -1,5 +1,5 @@
 from unstructured.partition.text import partition_text
-
+# from routes.upload_resume_jd import upload_resume
 
 
 def parse_resume(resume_text: str) -> list[dict]:    # ->list[dict] means returns a list of dictionaries

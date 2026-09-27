@@ -58,7 +58,6 @@
 #     finally:
 #         os.remove(temp_pdf_path)
 
-
 from dotenv import load_dotenv
 load_dotenv(override=True)
 from fastapi import FastAPI
@@ -100,5 +99,11 @@ app.include_router(
 app.include_router(
     extracted_knowledge_router,
     prefix = "/api/v1/resume",  # so the full path will be /api/v1/resume/extractedresumeknowledge
-    tags = ["Resume Extracted Knowledge"]
+    tags = ["Premium Features"]
 )
+
+# app.include_router(
+#     # extracted_knowledge_router,
+#     prefix = "/api/v1/resume",  # so the full path will be /api/v1/resume/extractedresumeknowledge
+#     tags = ["Resume Format Scoring"]
+# )
