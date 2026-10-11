@@ -1,8 +1,13 @@
 pdfplumber
-uvicorn
+
 python-multipart
 PyMupdf
 fastapi
+uvicorn
+SQLAlchemy
+alembic
+pydantic
+psycopg2-binary
 python-docx
 unstructured
 groq
