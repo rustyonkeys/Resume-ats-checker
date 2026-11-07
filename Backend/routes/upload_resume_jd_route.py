@@ -1,4 +1,5 @@
 import os
+import hashlib
 import tempfile
 from pathlib import Path 
 from fastapi import (
@@ -6,8 +7,12 @@ from fastapi import (
     File, 
     UploadFile, 
     Form, 
+    Depends,
     HTTPException,
     status)
+
+from sqlalchemy.orm import Session
+from uuid import UUID,uuid4
 
 from services.file_validation import file_validation
 from services.resumeparser import parse_resume
@@ -16,6 +21,10 @@ from services.scoring.response_formatter import (
     format_scoring_response,
     format_validation_response,
 )
+
+from extensions.extensions import get_db
+from models.job_description import JobDescription
+from models.resumes import Resume
 # from LLM.extractknowledge import extract_resume_knowledge
 
 #creating a router instance
@@ -28,9 +37,12 @@ max_size_bytes = max_file_size_mb * 1024 * 1024
 @router.post(
         "/uploadresume",
         status_code = status.HTTP_200_OK,)
+
 async def upload_resume(
     file: UploadFile = File(...),
-    jd: str = Form(..., min_length=1)
+    jd: str = Form(..., min_length=1),
+    user_id: UUID = Form(...),
+    db: Session = Depends(get_db)
 ):
     
     # Upload and validate a resume together with a job description.
@@ -97,6 +109,42 @@ async def upload_resume(
                     # resume_text = extract_resume_text(temp_file_path)
                     # parsed_resume = parse_resume(resume_text)
                     # jd_analysis = analyse_job_description(jd)
+
+        resume_id = uuid4() #Generates a unique identifier for the resume
+        content = Path(temp_file_path).read_bytes() #Reads the content of the temporary file as bytes
+
+        resume_record = Resume(
+            resume_id=resume_id,
+            user_id=user_id,
+            original_filename=original_filename,
+            storage_key=f"metadata-test/{resume_id}{extension}",
+            file_type=extension.lstrip("."),
+            size_bytes=len(content),
+            file_sha256=hashlib.sha256(content).hexdigest(),
+            validation_status="valid",
+        )
+
+        jobdescription_id = uuid4()
+        jd_record = JobDescription(
+            job_description_id = jobdescription_id,
+            resume_id = resume_id,
+            jd_text = jd,
+            role_title = None,
+            company_name = None,
+            source_url = None
+        )
+
+
+        try:
+            db.add(resume_record)
+            #The JD is being inserted before its parent resume exists in PostgreSQL. db.add() only queues a record; it does not immediately insert it.
+            db.flush()  # Insert the resume before inserting its JD.
+            db.add(jd_record)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+
         return{
             "message": "Resume uploaded and validated successfully",
             "filename": original_filename,
