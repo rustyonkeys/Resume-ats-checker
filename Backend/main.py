@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from extensions.extensions import Base, engine
 from models.resumes import Resume
 from models.job_description import JobDescription
+from models.resume_extraction import ResumeExtraction
 from routes.upload_resume_jd_route import router as upload_resume_router
 from routes.extracted_knowledge_route import router as extracted_knowledge_router
 

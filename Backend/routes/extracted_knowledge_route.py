@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, HTTPException
 from pydantic import BaseModel, Field
 
-from LLM.extractknowledge import extract_resume_knowledge
+from services.LLM.extractknowledge import extract_resume_knowledge
 
 #Creating a router instance
 router = APIRouter()
