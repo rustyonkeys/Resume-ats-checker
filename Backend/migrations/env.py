@@ -87,6 +87,7 @@ from extensions.extensions import Base, engine
 from models.resumes import Resume
 from models.job_description import JobDescription
 from models.resume_extraction import ResumeExtraction
+from models.format_scores import format_score
 
 target_metadata = Base.metadata
 

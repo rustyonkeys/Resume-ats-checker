@@ -256,7 +256,8 @@ async def upload_resume(
             "job_description_id": str(jobdescription_id),
             "extraction_id": str(extraction_id),
             "validation": public_validation,
-            "resume_format_score": public_format_score
+            "resume_format_score": public_format_score,
+            "detailed_breakdown_format_score": resume_format_score,
             }
             
     except HTTPException:
