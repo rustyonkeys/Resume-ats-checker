@@ -6,6 +6,7 @@ from extensions.extensions import Base, engine
 from models.resumes import Resume
 from models.job_description import JobDescription
 from models.resume_extraction import ResumeExtraction
+from models.format_scores import format_score
 from routes.upload_resume_jd_route import router as upload_resume_router
 from routes.extracted_knowledge_route import router as extracted_knowledge_router
 

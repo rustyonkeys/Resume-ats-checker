@@ -28,6 +28,7 @@ from extensions.extensions import get_db
 from models.job_description import JobDescription
 from models.resumes import Resume
 from models.resume_extraction import ResumeExtraction
+from models.format_scores import format_score
 
 
 #creating a router instance
@@ -150,6 +151,10 @@ async def upload_resume(
             extraction_settings = {},
             processing_status = "pending",
             error_code = None
+        )
+
+        format_score_record = format_score(
+            
         )
 
         db.add(resume_record)
